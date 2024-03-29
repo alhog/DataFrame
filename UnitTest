@@ -1,0 +1,13 @@
+import unittest
+
+class TestDataPipeline(unittest.TestCase):
+    def test_data_transformation(self):
+        # Your test logic here
+        self.assertEqual(2 + 2, 4)
+
+    def test_data_loading(self):
+        # Another test case
+        self.assertEqual(len([1, 2, 3]), 3)
+
+if __name__ == '__main__':
+    unittest.main()
