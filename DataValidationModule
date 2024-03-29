@@ -1,0 +1,49 @@
+import pandas as pd
+import pandera as pa
+from loguru import logger
+
+class DataValidationModule:
+    def __init__(self, schema):
+        self.schema = schema
+
+    def validate_data(self, data):
+        logger.info("Validating data...")
+        try:
+            validated_data = self.schema.validate(data, lazy=True)
+            if validated_data.failure_cases:
+                logger.warning("Data validation failures:")
+                for failure in validated_data.failure_cases:
+                    logger.warning(failure)
+            else:
+                logger.info("Data validation successful.")
+        except pa.errors.SchemaErrors as e:
+            logger.error("Schema errors encountered during validation:")
+            logger.error(e)
+            raise
+
+        return validated_data
+
+    def generate_quality_report(self, data):
+        logger.info("Generating data quality report...")
+        report = data.pandas_df.describe(include='all').transpose()
+        report['null_count'] = data.pandas_df.isnull().sum()
+        report['null_percentage'] = (data.pandas_df.isnull().sum() / len(data.pandas_df)) * 100
+        report['unique_count'] = data.pandas_df.nunique()
+        report['unique_percentage'] = (data.pandas_df.nunique() / len(data.pandas_df)) * 100
+        report.to_csv('data_quality_report.csv')
+        logger.info("Data quality report generated: data_quality_report.csv")
+
+# Define data schema
+schema = pa.DataFrameSchema({
+    "id": pa.Column(pa.Int, nullable=False, unique=True),
+    "name": pa.Column(pa.String, nullable=False),
+    "age": pa.Column(pa.Int, nullable=False, gt=0, lt=120),
+    "income": pa.Column(pa.Float, nullable=True, gt=0),
+    "is_employed": pa.Column(pa.Bool, nullable=False),
+    "education_level": pa.Column(pa.String, nullable=False, allowed_values=["High School", "Bachelor's", "Master's", "PhD"])
+})
+
+# Example usage
+validation_module = DataValidationModule(schema)
+validated_data = validation_module.validate_data(enriched_data)
+validation_module.generate_quality_report(validated_data)
