@@ -214,8 +214,6 @@ Here we tackle the Data Validation Module, which is responsible for ensuring the
    - Integrate with monitoring and logging tools (e.g., Prometheus, Grafana, or ELK Stack) for pipeline monitoring and troubleshooting.
    - Implement alerting and notification mechanisms for pipeline failures or anomalies.
 
-*
-
 1. **Workflow Orchestration**:
    - **Apache Airflow**: A powerful open-source platform for orchestrating complex workflows. Define DAGs (Directed Acyclic Graphs) to manage your data pipeline.
    - **AWS Step Functions**: AWS service for building serverless workflows using state machines.
