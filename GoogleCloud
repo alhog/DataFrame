@@ -1,0 +1,22 @@
+from google.cloud import storage
+
+# Initialize GCS client
+client = storage.Client()
+
+# Upload a file to GCS bucket
+def upload_to_gcs(bucket_name, local_file_path, gcs_blob_name):
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(gcs_blob_name)
+    blob.upload_from_filename(local_file_path)
+    print(f"File uploaded successfully to gs://{bucket_name}/{gcs_blob_name}")
+
+# Download a file from GCS bucket
+def download_from_gcs(bucket_name, gcs_blob_name, local_file_path):
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(gcs_blob_name)
+    blob.download_to_filename(local_file_path)
+    print(f"File downloaded successfully to {local_file_path}")
+
+# Example usage
+upload_to_gcs('my-bucket', 'local_file.txt', 'folder/file.txt')
+download_from_gcs('my-bucket', 'folder/file.txt', 'downloaded_file.txt')
