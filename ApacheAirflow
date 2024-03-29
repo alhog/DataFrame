@@ -1,0 +1,21 @@
+from airflow import DAG
+from airflow.operators.dummy_operator import DummyOperator
+from airflow.operators.python_operator import PythonOperator
+from datetime import datetime
+
+def my_task_function():
+    # Your task logic here
+    print("Executing my_task_function")
+
+default_args = {
+    'owner': 'me',
+    'start_date': datetime(2024, 3, 29),
+    'retries': 1,
+}
+
+dag = DAG('my_data_pipeline', default_args=default_args, schedule_interval=None)
+
+start_task = DummyOperator(task_id='start', dag=dag)
+my_task = PythonOperator(task_id='my_task', python_callable=my_task_function, dag=dag)
+
+start_task >> my_task  # Define task dependencies
