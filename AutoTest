@@ -1,0 +1,9 @@
+# test_my_pipeline.py
+
+def test_data_transformation():
+    # Your test logic here
+    assert 2 + 2 == 4
+
+def test_data_loading():
+    # Another test case
+    assert len([1, 2, 3]) == 3
