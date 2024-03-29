@@ -16,7 +16,7 @@ The Data Ingestion Module is responsible for ingesting data from various sources
 
 It should be capable of handling structured data (e.g., CSV, JSON, SQL databases) as well as unstructured data (e.g., text files, web pages, streaming data).
 
-*Here's a more detailed breakdown of the Data Ingestion Module:*
+   *Here's a more detailed breakdown of the Data Ingestion Module:*
 
 1. **Data Source Connectors**:
    - Implement connectors for different data sources:
@@ -54,7 +54,7 @@ It should be capable of handling structured data (e.g., CSV, JSON, SQL databases
    - Implement data type conversions and formatting transformations.
    - Utilize libraries like pandas and scikit-learn for data cleaning operations.
 
-*The Data Cleaning Module should handle various data cleaning tasks, such as:*
+   *The Data Cleaning Module should handle various data cleaning tasks, such as:*
 
 1. **Missing Data Handling**:
    - Identify and handle missing data (null, NaN, or other placeholders) in the dataset.
@@ -89,7 +89,7 @@ It should be capable of handling structured data (e.g., CSV, JSON, SQL databases
    
 The Data Enrichment Module is responsible for enriching the cleaned data with additional features or information to enhance its value and utility for downstream analysis or processing.
 
-*The Data Enrichment Module should handle various data enrichment tasks, such as:*
+   *The Data Enrichment Module should handle various data enrichment tasks, such as:*
 
 1. **Feature Engineering**:
    - Create new features or variables from existing data by applying mathematical or statistical operations.
@@ -123,7 +123,7 @@ The Data Enrichment Module is responsible for enriching the cleaned data with ad
 
 Let's move on to the Data Refinement Module, which is responsible for further refining and preparing the enriched data for analysis or modeling tasks.
 
-*The Data Refinement Module should handle various data refinement tasks, such as:*
+   *The Data Refinement Module should handle various data refinement tasks, such as:*
 
 1. **Data Normalization and Scaling**:
    - Normalize or scale numerical features to a common range, ensuring fair contributions from each feature.
@@ -157,7 +157,7 @@ Let's move on to the Data Refinement Module, which is responsible for further re
 
 Here we tackle the Data Validation Module, which is responsible for ensuring the quality and integrity of the data before it's used for further analysis or modeling.
 
-*The Data Validation Module should handle various data validation tasks, such as:*
+   *The Data Validation Module should handle various data validation tasks, such as:*
 
 1. **Data Type Validation**:
    - Validate the data types of each column or feature to ensure consistency with expected types.
