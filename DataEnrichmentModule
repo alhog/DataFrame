@@ -1,0 +1,72 @@
+import pandas as pd
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from sklearn.feature_extraction.text import CountVectorizer
+import geopy
+from loguru import logger
+
+class DataEnrichmentModule:
+    def __init__(self, config):
+        self.config = config
+
+    def feature_engineering(self, data):
+        logger.info("Performing feature engineering")
+        # Example: Creating polynomial features
+        data['age_squared'] = data['age'] ** 2
+        # More feature engineering techniques can be added here
+        return data
+
+    def categorical_encoding(self, data):
+        logger.info("Encoding categorical variables")
+        categorical_cols = data.select_dtypes(include=['object']).columns
+        label_encoder = LabelEncoder()
+        one_hot_encoder = OneHotEncoder(handle_unknown='ignore')
+
+        for col in categorical_cols:
+            data[col] = label_encoder.fit_transform(data[col])
+
+        encoded_data = one_hot_encoder.fit_transform(data[categorical_cols])
+        encoded_df = pd.DataFrame(encoded_data.toarray(), columns=one_hot_encoder.get_feature_names_out(categorical_cols))
+        data = pd.concat([data, encoded_df], axis=1)
+        data = data.drop(categorical_cols, axis=1)
+
+        return data
+
+    def text_preprocessing(self, data):
+        logger.info("Preprocessing text data")
+        text_cols = data.select_dtypes(include=['object']).columns
+        vectorizer = CountVectorizer()
+
+        for col in text_cols:
+            data[f"{col}_vec"] = vectorizer.fit_transform(data[col])
+
+        return data
+
+    def geospatial_enrichment(self, data):
+        logger.info("Enriching data with geospatial information")
+        geolocator = geopy.Nominatim(user_agent="data_enrichment")
+
+        if 'latitude' not in data.columns or 'longitude' not in data.columns:
+            data['location'] = data['address'].apply(geolocator.geocode)
+            data['location'] = data['location'].apply(lambda loc: tuple(loc.point) if loc else (None, None))
+            data['latitude'] = [loc[0] for loc in data['location']]
+            data['longitude'] = [loc[1] for loc in data['location']]
+            data = data.drop('location', axis=1)
+
+        return data
+
+    def enrich_data(self, data):
+        # Data enrichment pipeline
+        data = self.feature_engineering(data)
+        data = self.categorical_encoding(data)
+        data = self.text_preprocessing(data)
+        data = self.geospatial_enrichment(data)
+        # Additional enrichment steps can be added here
+        return data
+
+# Example usage
+config = {
+    # Configuration options for enrichment module
+}
+
+enrichment_module = DataEnrichmentModule(config)
+enriched_data = enrichment_module.enrich_data(cleaned_data)
