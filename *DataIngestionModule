@@ -1,0 +1,89 @@
+import pandas as pd
+import sqlalchemy as sa
+import requests
+from loguru import logger
+
+class DataIngestionTask:
+    def __init__(self, config):
+        self.config = config
+
+    def ingest(self, source):
+        raise NotImplementedError
+
+class CSVIngestion(DataIngestionTask):
+    def ingest(self, file_path):
+        logger.info(f"Ingesting CSV file: {file_path}")
+        try:
+            data = pd.read_csv(file_path)
+            return data
+        except Exception as e:
+            logger.error(f"Error ingesting CSV file: {e}")
+            raise
+
+class JSONIngestion(DataIngestionTask):
+    def ingest(self, file_path):
+        logger.info(f"Ingesting JSON file: {file_path}")
+        try:
+            data = pd.read_json(file_path)
+            return data
+        except Exception as e:
+            logger.error(f"Error ingesting JSON file: {e}")
+            raise
+
+class SQLIngestion(DataIngestionTask):
+    def __init__(self, config):
+        super().__init__(config)
+        self.engine = sa.create_engine(config['database_uri'])
+
+    def ingest(self, query):
+        logger.info(f"Ingesting data from SQL query: {query}")
+        try:
+            data = pd.read_sql(query, self.engine)
+            return data
+        except Exception as e:
+            logger.error(f"Error ingesting data from SQL: {e}")
+            raise
+
+class APIIngestion(DataIngestionTask):
+    def ingest(self, url, params=None, headers=None):
+        logger.info(f"Ingesting data from API: {url}")
+        try:
+            response = requests.get(url, params=params, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            return data
+        except Exception as e:
+            logger.error(f"Error ingesting data from API: {e}")
+            raise
+
+class DataIngestionModule:
+    def __init__(self, config):
+        self.config = config
+        self.tasks = {
+            'csv': CSVIngestion(config),
+            'json': JSONIngestion(config),
+            'sql': SQLIngestion(config),
+            'api': APIIngestion(config)
+        }
+
+    def ingest_data(self, source, type, **kwargs):
+        return self.tasks[type].ingest(source, **kwargs)
+
+# Example usage
+config = {
+    'database_uri': 'postgresql://user:password@host:port/database'
+}
+
+ingestion_module = DataIngestionModule(config)
+
+# Ingest CSV file
+csv_data = ingestion_module.ingest_data('data.csv', 'csv')
+
+# Ingest JSON file
+json_data = ingestion_module.ingest_data('data.json', 'json')
+
+# Ingest data from SQL database
+sql_data = ingestion_module.ingest_data('SELECT * FROM table', 'sql')
+
+# Ingest data from API
+api_data = ingestion_module.ingest_data('https://api.example.com/data', 'api', headers={'Authorization': 'Bearer token'})
