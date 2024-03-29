@@ -1,0 +1,66 @@
+import pandas as pd
+import pandera as pa
+from loguru import logger
+
+# Import all the modules
+from data_ingestion_module import DataIngestionModule
+from data_cleaning_module import DataCleaningModule
+from data_enrichment_module import DataEnrichmentModule
+from data_refinement_module import DataRefinementModule
+from data_validation_module import DataValidationModule
+from data_analysis_module import DataAnalysisModule
+
+# Define all the configurations
+ingestion_config = {
+    'database_uri': 'postgresql://user:password@host:port/database'
+}
+
+cleaning_config = {
+    'imputation_strategy': 'mean',
+    'outlier_method': 'zscore',
+    'outlier_threshold': 3,
+    'deduplication_columns': ['id', 'name']
+}
+
+enrichment_config = {
+    'normalization_method': 'minmax',
+    'dimensionality_reduction_method': 'pca',
+    'n_components': 10,
+    'feature_selection_method': 'kbest',
+    'n_features': 20,
+    'test_size': 0.2,
+    'stratify': True
+}
+
+validation_config = {
+    'schema': pa.DataFrameSchema({
+        "id": pa.Column(pa.Int, nullable=False, unique=True),
+        "name": pa.Column(pa.String, nullable=False),
+        "age": pa.Column(pa.Int, nullable=False, gt=0, lt=120),
+        "income": pa.Column(pa.Float, nullable=True, gt=0),
+        "is_employed": pa.Column(pa.Bool, nullable=False),
+        "education_level": pa.Column(pa.String, nullable=False, allowed_values=["High School", "Bachelor's", "Master's", "PhD"])
+    })
+}
+
+analysis_config = {
+    'random_state': 42,
+    'model_type': 'regression',
+    'time_series_target': 'sales'
+}
+
+# Initialize all the modules
+ingestion_module = DataIngestionModule(ingestion_config)
+cleaning_module = DataCleaningModule(cleaning_config)
+enrichment_module = DataEnrichmentModule(enrichment_config)
+refinement_module = DataRefinementModule(refinement_config)
+validation_module = DataValidationModule(validation_config)
+analysis_module = DataAnalysisModule(analysis_config)
+
+# Execute the workflow
+ingested_data = ingestion_module.ingest_data('data.csv', 'csv')
+cleaned_data = cleaning_module.clean_data(ingested_data)
+enriched_data = enrichment_module.enrich_data(cleaned_data)
+train_data, test_data, train_target, test_target = refinement_module.refine_data(enriched_data, target_data)
+validated_data = validation_module.validate_data(train_data)
+analysis_module.analyze_data(train_data, test_data, train_target, test_target)
