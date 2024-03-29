@@ -1,0 +1,3 @@
+# Example indexing using pandas
+df.set_index('user_id', inplace=True)  # Create an index on 'user_id'
+query_result = df.loc[12345]  # Retrieve data for user with ID 12345
