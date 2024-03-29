@@ -192,21 +192,27 @@ Here we tackle the Data Validation Module, which is responsible for ensuring the
 - Train machine learning models (e.g., regression, classification, clustering) on the prepared data.
 - Implement techniques like gradient boosting, random forests, neural networks, or other algorithms based on the problem domain.
 - Support model hyperparameter tuning and cross-validation for optimal model performance.
+
 **Model Evaluation:**
 - Evaluate the trained models using appropriate evaluation metrics (e.g., accuracy, precision, recall, F1-score, RMSE, R-squared).
 - Implement techniques for model comparison, model selection, and performance analysis.
+
 **Feature Importance:**
 - Analyze the importance or relevance of each feature in the dataset for the target variable or task.
 - Implement techniques like feature importance ranking, permutation importance, or SHAP values.
+
 **Interpretability and Explainability:**
 - Provide interpretability and explainability for the trained models, especially for high-stakes or regulated domains.
 - Implement techniques like LIME, SHAP, or counterfactual explanations.
+
 **Anomaly Detection:**
 - Identify and flag anomalies, outliers, or unusual patterns in the data.
 - Implement techniques like isolation forests, autoencoders, or unsupervised clustering methods.
+
 **Time Series Analysis:**
 - Analyze and model time-series data for forecasting, trend detection, or seasonality analysis.
 - Implement techniques like ARIMA, exponential smoothing, or recurrent neural networks (RNNs).
+
 **Federated Learning:**
 - Enable collaborative model training across multiple parties while preserving data privacy.
 - Implement federated learning algorithms to train models on decentralized data sources.
