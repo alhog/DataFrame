@@ -1,0 +1,65 @@
+import pandas as pd
+import numpy as np
+from loguru import logger
+
+class DataCleaningModule:
+    def __init__(self, config):
+        self.config = config
+
+    def handle_missing_data(self, data, strategy='mean'):
+        logger.info(f"Handling missing data using {strategy} imputation strategy")
+        numeric_cols = data.select_dtypes(include=['float64', 'int64']).columns
+        if strategy == 'mean':
+            imputer = SimpleImputer(strategy='mean')
+        elif strategy == 'median':
+            imputer = SimpleImputer(strategy='median')
+        elif strategy == 'mode':
+            imputer = SimpleImputer(strategy='most_frequent')
+        else:
+            raise ValueError(f"Invalid imputation strategy: {strategy}")
+
+        for col in numeric_cols:
+            data[col] = imputer.fit_transform(data[col].values.reshape(-1, 1))
+
+        return data
+
+    def remove_outliers(self, data, method='zscore', threshold=3):
+        logger.info(f"Removing outliers using {method} method with threshold {threshold}")
+        if method == 'zscore':
+            z_scores = np.abs(stats.zscore(data))
+            outliers = np.where(z_scores > threshold)
+            data = data.drop(data.index[outliers])
+        elif method == 'iqr':
+            q1 = data.quantile(0.25)
+            q3 = data.quantile(0.75)
+            iqr = q3 - q1
+            outliers = (data < (q1 - threshold * iqr)) | (data > (q3 + threshold * iqr))
+            data = data.loc[~outliers.any(axis=1)]
+        else:
+            raise ValueError(f"Invalid outlier removal method: {method}")
+
+        return data
+
+    def deduplicate_data(self, data, subset=None):
+        logger.info(f"Deduplicating data based on columns: {subset}")
+        data = data.drop_duplicates(subset=subset, keep='first')
+        return data
+
+    def clean_data(self, data):
+        # Data cleaning pipeline
+        data = self.handle_missing_data(data, strategy=self.config['imputation_strategy'])
+        data = self.remove_outliers(data, method=self.config['outlier_method'], threshold=self.config['outlier_threshold'])
+        data = self.deduplicate_data(data, subset=self.config['deduplication_columns'])
+        # Additional cleaning steps can be added here
+        return data
+
+# Example usage
+config = {
+    'imputation_strategy': 'mean',
+    'outlier_method': 'zscore',
+    'outlier_threshold': 3,
+    'deduplication_columns': ['id', 'name']
+}
+
+cleaning_module = DataCleaningModule(config)
+cleaned_data = cleaning_module.clean_data(ingested_data)
