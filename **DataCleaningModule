@@ -1,0 +1,85 @@
+import pandas as pd
+import numpy as np
+from scipy import stats
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from loguru import logger
+
+class DataCleaningModule:
+    def __init__(self, config):
+        self.config = config
+
+    def handle_missing_data(self, data):
+        logger.info("Handling missing data...")
+        try:
+            if self.config['missing_data_strategy'] == 'mean':
+                data = data.fillna(data.mean())
+            elif self.config['missing_data_strategy'] == 'median':
+                data = data.fillna(data.median())
+            elif self.config['missing_data_strategy'] == 'mode':
+                data = data.fillna(data.mode().iloc[0])
+            else:
+                raise ValueError(f"Invalid missing data handling strategy: {self.config['missing_data_strategy']}")
+            return data
+        except Exception as e:
+            logger.error(f"Error handling missing data: {e}")
+            raise
+
+    def detect_and_handle_outliers(self, data):
+        logger.info("Detecting and handling outliers...")
+        try:
+            if self.config['outlier_detection_method'] == 'zscore':
+                z_scores = np.abs(stats.zscore(data))
+                data = data[(z_scores < self.config['outlier_threshold']).all(axis=1)]
+            elif self.config['outlier_detection_method'] == 'iqr':
+                Q1 = data.quantile(0.25)
+                Q3 = data.quantile(0.75)
+                IQR = Q3 - Q1
+                data = data[~((data < (Q1 - 1.5 * IQR)) | (data > (Q3 + 1.5 * IQR))).any(axis=1)]
+            else:
+                raise ValueError(f"Invalid outlier detection method: {self.config['outlier_detection_method']}")
+            return data
+        except Exception as e:
+            logger.error(f"Error detecting and handling outliers: {e}")
+            raise
+
+    def deduplicate_data(self, data):
+        logger.info("Deduplicating data...")
+        try:
+            data = data.drop_duplicates(subset=self.config['deduplication_columns'])
+            return data
+        except Exception as e:
+            logger.error(f"Error deduplicating data: {e}")
+            raise
+
+    def convert_data_types(self, data):
+        logger.info("Converting data types...")
+        try:
+            for column, data_type in self.config['data_type_conversions'].items():
+                data[column] = data[column].astype(data_type)
+            return data
+        except Exception as e:
+            logger.error(f"Error converting data types: {e}")
+            raise
+
+    def normalize_data(self, data):
+        logger.info("Normalizing data...")
+        try:
+            if self.config['normalization_method'] == 'minmax':
+                scaler = MinMaxScaler()
+            elif self.config['normalization_method'] == 'zscore':
+                scaler = StandardScaler()
+            else:
+                raise ValueError(f"Invalid normalization method: {self.config['normalization_method']}")
+            data = pd.DataFrame(scaler.fit_transform(data), columns=data.columns)
+            return data
+        except Exception as e:
+            logger.error(f"Error normalizing data: {e}")
+            raise
+
+    def clean_data(self, data):
+        data = self.handle_missing_data(data)
+        data = self.detect_and_handle_outliers(data)
+        data = self.deduplicate_data(data)
+        data = self.convert_data_types(data)
+        data = self.normalize_data(data)
+        return data
