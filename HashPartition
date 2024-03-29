@@ -1,0 +1,9 @@
+# Example hash-based partitioning
+def hash_partition(key, num_partitions):
+    return hash(key) % num_partitions
+
+# Distribute data into 10 partitions
+num_partitions = 10
+partition_key = 'user_id'
+partition_number = hash_partition(partition_key, num_partitions)
+print(f"Data for {partition_key} goes to partition {partition_number}")
