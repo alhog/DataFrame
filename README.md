@@ -189,6 +189,8 @@ Here we tackle the Data Validation Module, which is responsible for ensuring the
    - Support both batch and real-time data storage and retrieval modes.
    - Utilize libraries like pandas, fsspec, and s3fs for cloud storage integration.
 
+     *The Data Storage and Retrieval Module should handle various data storage and retrieval tasks, such as:*
+
 1. **Cloud Storage Integration**:
    - To integrate with cloud storage services like Amazon S3, Google Cloud Storage, or Azure Blob Storage, you'll need to use their respective SDKs or APIs.
    - For Amazon S3, you can use the `boto3` library in Python.
@@ -214,6 +216,8 @@ Here we tackle the Data Validation Module, which is responsible for ensuring the
    - Integrate with monitoring and logging tools (e.g., Prometheus, Grafana, or ELK Stack) for pipeline monitoring and troubleshooting.
    - Implement alerting and notification mechanisms for pipeline failures or anomalies.
 
+   *The Orchestration and Monitoring Module should handle various orchestration and monitoring tasks, such as:*
+
 1. **Workflow Orchestration**:
    - **Apache Airflow**: A powerful open-source platform for orchestrating complex workflows. Define DAGs (Directed Acyclic Graphs) to manage your data pipeline.
    - **AWS Step Functions**: AWS service for building serverless workflows using state machines.
@@ -231,6 +235,8 @@ Here we tackle the Data Validation Module, which is responsible for ensuring the
    - Develop automated testing frameworks (e.g., pytest, unittest) for unit testing and integration testing of the data pipeline components.
    - Implement continuous integration and continuous deployment (CI/CD) pipelines for automated testing and deployment.
    - Perform code reviews and static code analysis for code quality and security.
+
+     *The Testing and Quality Assurance Module should handle various testing and quality assurance tasks, such as:*
 
 1. **Automated Testing Frameworks**:
    - **pytest**: A popular testing framework for writing simple and scalable test cases.
