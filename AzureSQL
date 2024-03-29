@@ -1,0 +1,36 @@
+import pyodbc
+
+def connect_to_azure_sql_server():
+    server = 'your_server_name.database.windows.net'
+    database = 'your_database_name'
+    username = 'your_username'
+    password = 'your_password'
+    driver = '{ODBC Driver 17 for SQL Server}'
+
+    try:
+        conn = pyodbc.connect(
+            f"DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}"
+        )
+        return conn
+    except Exception as e:
+        print(f"Error connecting to Azure SQL Database: {e}")
+        return None
+
+def update_data_in_azure_sql():
+    conn = connect_to_azure_sql_server()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            # Example: Update user email
+            user_id = 12345
+            new_email = 'new_email@example.com'
+            cursor.execute(f"UPDATE Users SET Email = ? WHERE UserId = ?", new_email, user_id)
+            conn.commit()
+            print(f"User {user_id} email updated to {new_email}")
+        except Exception as e:
+            print(f"Error updating data: {e}")
+        finally:
+            conn.close()
+
+# Example usage
+update_data_in_azure_sql()
