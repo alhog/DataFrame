@@ -1,0 +1,75 @@
+import pandas as pd
+import requests
+import sqlalchemy as sa
+from loguru import logger
+from multiprocessing import Pool
+
+class DataIngestionModule:
+    def __init__(self, config):
+        self.config = config
+        self.engine = sa.create_engine(config['database_uri'])
+
+    def ingest_csv(self, file_path):
+        logger.info(f"Ingesting CSV file: {file_path}")
+        try:
+            data = pd.read_csv(file_path)
+            return data
+        except Exception as e:
+            logger.error(f"Error ingesting CSV file: {e}")
+            raise
+
+    def ingest_json(self, file_path):
+        logger.info(f"Ingesting JSON file: {file_path}")
+        try:
+            data = pd.read_json(file_path)
+            return data
+        except Exception as e:
+            logger.error(f"Error ingesting JSON file: {e}")
+            raise
+
+    def ingest_sql(self, query):
+        logger.info(f"Ingesting data from SQL query: {query}")
+        try:
+            data = pd.read_sql(query, self.engine)
+            return data
+        except Exception as e:
+            logger.error(f"Error ingesting data from SQL: {e}")
+            raise
+
+    def ingest_api(self, url, params=None, headers=None):
+        logger.info(f"Ingesting data from API: {url}")
+        try:
+            response = requests.get(url, params=params, headers=headers)
+            response.raise_for_status()
+            data = pd.DataFrame(response.json())
+            return data
+        except Exception as e:
+            logger.error(f"Error ingesting data from API: {e}")
+            raise
+
+    def update_data(self, data, url, params=None, headers=None):
+        logger.info(f"Updating data from API: {url}")
+        try:
+            response = requests.get(url, params=params, headers=headers)
+            response.raise_for_status()
+            new_data = pd.DataFrame(response.json())
+            updated_data = pd.concat([data, new_data]).drop_duplicates()
+            return updated_data
+        except Exception as e:
+            logger.error(f"Error updating data from API: {e}")
+            raise
+
+    def ingest_data_parallel(self, sources, type):
+        logger.info(f"Ingesting data from multiple sources in parallel")
+        with Pool(processes=len(sources)) as pool:
+            if type == 'csv':
+                data = pool.map(self.ingest_csv, sources)
+            elif type == 'json':
+                data = pool.map(self.ingest_json, sources)
+            elif type == 'sql':
+                data = pool.map(self.ingest_sql, sources)
+            elif type == 'api':
+                data = pool.map(self.ingest_api, sources)
+            else:
+                raise ValueError(f"Invalid data source type: {type}")
+        return pd.concat(data)
