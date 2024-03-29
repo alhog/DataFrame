@@ -1,0 +1,81 @@
+from sklearn.impute import SimpleImputer
+from scipy import stats
+import pandas as pd
+import numpy as np
+from loguru import logger
+
+class DataCleaningTask:
+    def __init__(self, config):
+        self.config = config
+
+    def clean(self, data):
+        raise NotImplementedError
+
+class MissingDataHandler(DataCleaningTask):
+    def clean(self, data):
+        logger.info(f"Handling missing data using {self.config['imputation_strategy']} imputation strategy")
+        numeric_cols = data.select_dtypes(include=['float64', 'int64']).columns
+        if self.config['imputation_strategy'] == 'mean':
+            imputer = SimpleImputer(strategy='mean')
+        elif self.config['imputation_strategy'] == 'median':
+            imputer = SimpleImputer(strategy='median')
+        elif self.config['imputation_strategy'] == 'mode':
+            imputer = SimpleImputer(strategy='most_frequent')
+        else:
+            raise ValueError(f"Invalid imputation strategy: {self.config['imputation_strategy']}")
+
+        for col in numeric_cols:
+            data[col] = imputer.fit_transform(data[col].values.reshape(-1, 1))
+
+        return data
+
+class OutlierRemover(DataCleaningTask):
+    def clean(self, data):
+        logger.info(f"Removing outliers using {self.config['outlier_method']} method with threshold {self.config['outlier_threshold']}")
+        if self.config['outlier_method'] == 'zscore':
+            z_scores = np.abs(stats.zscore(data))
+            outliers = np.where(z_scores > self.config['outlier_threshold'])
+            data = data.drop(data.index[outliers])
+        elif self.config['outlier_method'] == 'iqr':
+            q1 = data.quantile(0.25)
+            q3 = data.quantile(0.75)
+            iqr = q3 - q1
+            outliers = (data < (q1 - self.config['outlier_threshold'] * iqr)) | (data > (q3 + self.config['outlier_threshold'] * iqr))
+            data = data.loc[~outliers.any(axis=1)]
+        else:
+            raise ValueError(f"Invalid outlier removal method: {self.config['outlier_method']}")
+
+        return data
+
+class DataDeduplicator(DataCleaningTask):
+    def clean(self, data):
+        logger.info(f"Deduplicating data based on columns: {self.config['deduplication_columns']}")
+        data = data.drop_duplicates(subset=self.config['deduplication_columns'], keep='first')
+        return data
+
+class DataCleaningModule:
+    def __init__(self, config):
+        self.config = config
+        self.tasks = [
+            MissingDataHandler(config),
+            OutlierRemover(config),
+            DataDeduplicator(config)
+        ]
+
+    def clean_data(self, data):
+        # Data cleaning pipeline
+        for task in self.tasks:
+            data = task.clean(data)
+        # Additional cleaning steps can be added here
+        return data
+
+# Example usage
+config = {
+    'imputation_strategy': 'mean',
+    'outlier_method': 'zscore',
+    'outlier_threshold': 3,
+    'deduplication_columns': ['id', 'name']
+}
+
+cleaning_module = DataCleaningModule(config)
+cleaned_data = cleaning_module.clean_data(ingested_data)
