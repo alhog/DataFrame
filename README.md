@@ -54,6 +54,34 @@ It should be capable of handling structured data (e.g., CSV, JSON, SQL databases
    - Implement data type conversions and formatting transformations.
    - Utilize libraries like pandas and scikit-learn for data cleaning operations.
 
+*The Data Cleaning Module should handle various data cleaning tasks, such as:*
+
+1. **Missing Data Handling**:
+   - Identify and handle missing data (null, NaN, or other placeholders) in the dataset.
+   - Implement techniques like imputation (e.g., mean, median, mode imputation), interpolation, or deletion of missing data rows/columns.
+
+2. **Outlier Detection and Removal**:
+   - Detect and handle outliers in the dataset.
+   - Implement techniques like Z-score, Interquartile Range (IQR), or custom rules-based outlier detection methods.
+   - Provide options to remove or cap outliers based on the requirements.
+
+3. **Data Deduplication**:
+   - Identify and remove duplicate rows or records from the dataset.
+   - Implement techniques like exact or fuzzy matching based on specific columns or combinations of columns.
+
+4. **Data Type Conversion**:
+   - Convert data types of columns to appropriate formats (e.g., convert strings to numeric, dates to datetime format).
+   - Handle and resolve data type inconsistencies or conflicts.
+
+5. **Data Formatting and Normalization**:
+   - Perform data formatting tasks like string cleaning, date formatting, or numerical scaling.
+   - Implement normalization techniques like min-max scaling, z-score normalization, or decimal scaling.
+
+6. **Data Validation**:
+   - Validate the data against predefined constraints, rules, or business logic.
+   - Implement checks for data types, value ranges, null values, or other custom validation rules.
+
+
 ### 3. **Data Enrichment Module**:
    - Implement feature engineering techniques (e.g., one-hot encoding, label encoding, feature scaling).
    - Integrate with external data sources for data enrichment (e.g., geospatial data, demographic data).
