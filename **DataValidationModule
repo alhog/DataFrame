@@ -1,0 +1,86 @@
+import pandas as pd
+import numpy as np
+from pandas.api.types import is_numeric_dtype, is_string_dtype
+from loguru import logger
+
+class DataValidationModule:
+    def __init__(self, config):
+        self.config = config
+
+    def validate_data_types(self, data):
+        logger.info("Validating data types...")
+        try:
+            for column, data_type in self.config['expected_data_types'].items():
+                if data_type == 'numeric' and not is_numeric_dtype(data[column]):
+                    raise ValueError(f"Invalid data type for column {column}: expected numeric")
+                elif data_type == 'string' and not is_string_dtype(data[column]):
+                    raise ValueError(f"Invalid data type for column {column}: expected string")
+            return data
+        except Exception as e:
+            logger.error(f"Error validating data types: {e}")
+            raise
+
+    def validate_missing_values(self, data):
+        logger.info("Validating missing values...")
+        try:
+            missing_values = data.isnull().sum()
+            for column, max_missing_values in self.config['max_missing_values'].items():
+                if missing_values[column] > max_missing_values:
+                    raise ValueError(f"Too many missing values in column {column}: {missing_values[column]} > {max_missing_values}")
+            return data
+        except Exception as e:
+            logger.error(f"Error validating missing values: {e}")
+            raise
+
+    def validate_value_ranges(self, data):
+        logger.info("Validating value ranges...")
+        try:
+            for column, (min_value, max_value) in self.config['value_ranges'].items():
+                if data[column].min() < min_value or data[column].max() > max_value:
+                    raise ValueError(f"Values in column {column} out of range: {min_value} - {max_value}")
+            return data
+        except Exception as e:
+            logger.error(f"Error validating value ranges: {e}")
+            raise
+
+    def validate_uniqueness(self, data):
+        logger.info("Validating uniqueness...")
+        try:
+            for column in self.config['unique_columns']:
+                if data[column].duplicated().any():
+                    raise ValueError(f"Duplicate values found in column {column}")
+            return data
+        except Exception as e:
+            logger.error(f"Error validating uniqueness: {e}")
+            raise
+
+    def validate_cross_field(self, data):
+        logger.info("Validating cross-field constraints...")
+        try:
+            # Add your cross-field validation logic here
+            return data
+        except Exception as e:
+            logger.error(f"Error validating cross-field constraints: {e}")
+            raise
+
+    def generate_quality_report(self, data):
+        logger.info("Generating data quality report...")
+        try:
+            report = data.describe(include='all').transpose()
+            report['missing_values'] = data.isnull().sum()
+            report['missing_values_percentage'] = (data.isnull().sum() / len(data)) * 100
+            report['unique_values'] = data.nunique()
+            report['unique_values_percentage'] = (data.nunique() / len(data)) * 100
+            return report
+        except Exception as e:
+            logger.error(f"Error generating data quality report: {e}")
+            raise
+
+    def validate_data(self, data):
+        data = self.validate_data_types(data)
+        data = self.validate_missing_values(data)
+        data = self.validate_value_ranges(data)
+        data = self.validate_uniqueness(data)
+        data = self.validate_cross_field(data)
+        report = self.generate_quality_report(data)
+        return data, report
