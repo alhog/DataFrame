@@ -1,0 +1,24 @@
+import boto3
+
+# Initialize S3 client
+s3_client = boto3.client('s3', region_name='us-west-2')  # Replace with your desired region
+
+# Upload a file to S3 bucket
+def upload_to_s3(bucket_name, local_file_path, s3_key):
+    try:
+        s3_client.upload_file(local_file_path, bucket_name, s3_key)
+        print(f"File uploaded successfully to s3://{bucket_name}/{s3_key}")
+    except Exception as e:
+        print(f"Error uploading file: {e}")
+
+# Download a file from S3 bucket
+def download_from_s3(bucket_name, s3_key, local_file_path):
+    try:
+        s3_client.download_file(bucket_name, s3_key, local_file_path)
+        print(f"File downloaded successfully to {local_file_path}")
+    except Exception as e:
+        print(f"Error downloading file: {e}")
+
+# Example usage
+upload_to_s3('my-bucket', 'local_file.txt', 'folder/file.txt')
+download_from_s3('my-bucket', 'folder/file.txt', 'downloaded_file.txt')
