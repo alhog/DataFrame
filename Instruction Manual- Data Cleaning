@@ -1,0 +1,117 @@
+***Let's move on to the Data Cleaning Module.***
+
+# **Data Cleaning Module - Technical Guide**
+
+The Data Cleaning Module is responsible for handling various data cleaning tasks, such as dealing with missing values, detecting and removing outliers, deduplicating data, converting data types, formatting data, and normalizing numerical data. This module ensures that the ingested data is cleaned and prepared for further processing.
+
+### **Step 1: Load the Data**
+
+First, load the ingested data into a pandas DataFrame or a similar data structure.
+
+```python
+import pandas as pd
+
+# Load data from the previous step (e.g., Data Ingestion Module)
+df = pd.read_csv('cleaned_data.csv')
+```
+
+### **Step 2: Handle Missing Data**
+
+Identify and handle missing data in the dataset.
+
+```python
+# Check for missing values
+print(df.isnull().sum())
+
+# Drop rows/columns with missing values
+df = df.dropna(axis=0, how='any')  # Drop rows with any missing values
+df = df.dropna(axis=1, how='all')  # Drop columns with all missing values
+
+# Impute missing values
+from sklearn.impute import SimpleImputer
+
+imputer = SimpleImputer(strategy='mean')  # Use mean imputation
+df['column_name'] = imputer.fit_transform(df[['column_name']])
+```
+
+### **Step 3: Detect and Remove Outliers**
+
+Detect and handle outliers in the dataset.
+
+```python
+# Detect outliers using Z-score
+from scipy import stats
+z = np.abs(stats.zscore(df['column_name']))
+outliers = df[(z > 3)]
+
+# Remove outliers
+df = df[(z < 3)]
+```
+
+### **Step 4: Deduplicate Data**
+
+Identify and remove duplicate rows or records from the dataset.
+
+```python
+# Drop duplicate rows
+df = df.drop_duplicates()
+
+# Drop duplicate rows based on specific columns
+df = df.drop_duplicates(subset=['column1', 'column2'])
+```
+
+### **Step 5: Convert Data Types**
+
+Convert data types of columns to appropriate formats.
+
+```python
+# Convert data types
+df['column_name'] = df['column_name'].astype('int')
+df['date_column'] = pd.to_datetime(df['date_column'])
+```
+
+### **Step 6: Format and Normalize Data**
+
+Perform data formatting tasks like string cleaning, date formatting, or numerical scaling.
+
+```python
+# String cleaning
+df['column_name'] = df['column_name'].str.lower().str.strip()
+
+# Date formatting
+df['date_column'] = df['date_column'].dt.strftime('%Y-%m-%d')
+
+# Normalization
+from sklearn.preprocessing import MinMaxScaler
+
+scaler = MinMaxScaler()
+df['column_name'] = scaler.fit_transform(df[['column_name']])
+```
+
+### **Step 7: Validate Data**
+
+Validate the data against predefined constraints, rules, or business logic.
+
+```python
+# Check for invalid values
+invalid_rows = df[(df['column_name'] < 0) | (df['column_name'] > 100)]
+
+# Custom validation rules
+def validate_data(row):
+    if row['column1'] > row['column2']:
+        return True
+    else:
+        return False
+
+df = df[df.apply(validate_data, axis=1)]
+```
+
+### **Step 8: Save Cleaned Data**
+
+After performing all the cleaning operations, save the cleaned data for further processing.
+
+```python
+df.to_csv('cleaned_data.csv', index=False)
+```
+
+This guide covers the essential steps for data cleaning using Python and popular libraries like pandas and scikit-learn. Remember to adapt and customize these steps based on your specific data cleaning requirements and the characteristics of your dataset.
