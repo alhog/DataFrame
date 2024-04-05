@@ -1,0 +1,119 @@
+***Let's move on to the Data Enrichment Module.***
+
+# **Data Enrichment Module - Technical Guide**
+
+The Data Enrichment Module focuses on enhancing the data by creating new features, encoding categorical variables, preprocessing text data, integrating external data sources, enriching geospatial data, and performing time-series data transformations. This module enables the pipeline to derive additional insights and value from the data.
+
+### **Step 1: Load the Cleaned Data**
+
+First, load the cleaned data from the previous step (Data Cleaning Module).
+
+```python
+import pandas as pd
+
+# Load cleaned data
+df = pd.read_csv('cleaned_data.csv')
+```
+
+### **Step 2: Feature Engineering**
+
+Create new features or variables from existing data.
+
+```python
+# Create a new feature
+df['new_feature'] = df['column1'] + df['column2']
+
+# Polynomial features
+from sklearn.preprocessing import PolynomialFeatures
+
+poly = PolynomialFeatures(degree=2)
+poly_features = poly.fit_transform(df[['column1', 'column2']])
+```
+
+### **Step 3: Categorical Data Encoding**
+
+Encode categorical variables into numerical representations.
+
+```python
+# One-hot encoding
+encoded_data = pd.get_dummies(df['categorical_column'])
+df = pd.concat([df, encoded_data], axis=1)
+
+# Label encoding
+from sklearn.preprocessing import LabelEncoder
+
+label_encoder = LabelEncoder()
+df['categorical_column'] = label_encoder.fit_transform(df['categorical_column'])
+```
+
+### **Step 4: Text Preprocessing**
+
+Preprocess and transform unstructured text data.
+
+```python
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+
+# Tokenization
+def tokenize(text):
+    tokens = nltk.word_tokenize(text)
+    return tokens
+
+# Stemming
+stemmer = PorterStemmer()
+df['text_column'] = df['text_column'].apply(lambda x: ' '.join([stemmer.stem(word) for word in tokenize(x)]))
+
+# Stop word removal
+stop_words = set(stopwords.words('english'))
+df['text_column'] = df['text_column'].apply(lambda x: ' '.join([word for word in tokenize(x) if word not in stop_words]))
+```
+
+### **Step 5: Data Integration**
+
+Integrate the dataset with external data sources.
+
+```python
+# Load external data
+external_data = pd.read_csv('external_data.csv')
+
+# Merge datasets
+merged_data = pd.merge(df, external_data, on='common_column', how='left')
+```
+
+### **Step 6: Geospatial Data Enrichment**
+
+Enrich the dataset with geospatial information.
+
+```python
+import geopy
+from geopy.geocoders import Nominatim
+
+geolocator = Nominatim(user_agent="my_app")
+
+# Geocoding
+df['location'] = df['address'].apply(geolocator.geocode)
+df['point'] = df['location'].apply(lambda loc: tuple(loc.point) if loc else None)
+```
+
+### **Step 7: Time Series Data Enrichment**
+
+Enrich time-series data with temporal features.
+
+```python
+# Resampling
+resampled_data = df.resample('D', on='timestamp').mean()
+
+# Rolling window
+df['rolling_mean'] = df['column'].rolling(window=7).mean()
+```
+
+### **Step 8: Save Enriched Data**
+
+After performing all the enrichment operations, save the enriched data for further processing.
+
+```python
+df.to_csv('enriched_data.csv', index=False)
+```
+
+This guide covers the essential steps for data enrichment using Python and popular libraries like scikit-learn, NLTK, and geopy. Remember to adapt and customize these steps based on your specific data enrichment requirements and the characteristics of your dataset.
